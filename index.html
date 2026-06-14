@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowVerse | Where Beauty Meets Innovation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #07050e;
+            --bg-card: rgba(20, 16, 38, 0.6);
+            --primary-glow: #ff7ebb; /* Neon Rose */
+            --secondary-glow: #7ee8ff; /* Cyber Cyan */
+            --text-light: #f3f0fa;
+            --text-muted: #9fa2c4;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- 1. CORE ANIMATION CANVAS LAYERS --- */
+        #glitterCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,126,187,0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Floating 3D Bottle Base */
+        .floating-bottle-rig {
+            position: absolute;
+            width: 140px;
+            height: 280px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.2);
+            animation: floatingBottle 6s ease-in-out infinite alternate;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Serum Liquid Fill System */
+        .liquid-fill {
+            width: 100%;
+            height: 20%; /* Tied dynamically to JS window scroll */
+            background: linear-gradient(0deg, rgba(255, 126, 187, 0.7), rgba(126, 232, 255, 0.4));
+            box-shadow: 0 -5px 15px var(--primary-glow);
+            transition: height 0.1s ease-out;
+            position: relative;
+        }
+
+        .liquid-fill::after {
+            content: '';
+            position: absolute;
+            top: -5px; left: 0; width: 100%; height: 10px;
+            background: rgba(255,255,255,0.4);
+            filter: blur(2px);
+            border-radius: 50%;
+        }
+
+        @keyframes floatingBottle {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-25px) rotate(5deg); }
+        }
+
+        /* --- 2. HEADER NAVIGATION --- */
+        header {
+            position: fixed;
+            top: 0; width: 100%;
+            background: rgba(7, 5, 14, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1.2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            margin-left: 2.5rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover { color: var(--primary-glow); }
+
+        /* --- 3. HERO BANNER --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 6rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-text h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: 900;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(120deg, var(--primary-glow), #ca7eff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--primary-glow), #ca7eff);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(255, 126, 187, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 126, 187, 0.5);
+        }
+
+        .hero-display {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 500px;
+        }
+
+        /* --- 4. SECTIONS SETUP --- */
+        section {
+            padding: 8rem 6rem;
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* --- PRODUCT SHOWCASE (ROTATION ACTION) --- */
+        .showcase-container {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .interactive-render-box {
+            flex: 1;
+            height: 450px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            perspective: 1000px;
+            cursor: grab;
+        }
+
+        /* Complete CSS Rotating Component Asset representing the Serum Bottle open effect */
+        .bottle-mesh {
+            width: 120px;
+            height: 240px;
+            background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 16px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+
+        .bottle-mesh .cap {
+            position: absolute;
+            top: -40px; left: 50%;
+            transform: translateX(-50%);
+            width: 60px; height: 40px;
+            background: var(--primary-glow);
+            border-radius: 6px;
+            transition: transform 0.6s ease;
+        }
+
+        .interactive-render-box:hover .bottle-mesh {
+            transform: rotateY(180deg) rotateX(10deg);
+        }
+
+        .interactive-render-box:hover .bottle-mesh .cap {
+            transform: translateX(-50%) translateY(-20px) rotateX(45deg); /* Product opens animation effect */
+        }
+
+        .showcase-details { flex: 1; }
+        .showcase-details h3 { font-size: 2rem; margin-bottom: 1rem; color: var(--secondary-glow); }
+        .showcase-details p { color: var(--text-muted); margin-bottom: 2rem; line-height: 1.7; }
+
+        /* --- SKIN ANALYSIS TRANSFORMATION SLIDER --- */
+        .slider-centerpiece {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            height: 450px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .skin-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .before-layer {
+            background-image: url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=1200');
+            filter: grayscale(0.6) contrast(1.2);
+            z-index: 1;
+        }
+
+        .after-layer {
+            background-image: url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=1200');
+            z-index: 2;
+            width: 50%; /* Regulated by dynamic user input slider */
+            border-right: 3px solid var(--secondary-glow);
+        }
+
+        .slider-drag-input {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            z-index: 5;
+            cursor: ew-resize;
+        }
+
+        /* --- PRODUCT INGREDIENTS MATRIX --- */
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .ingredient-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .ingredient-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-glow);
+        }
+
+        .ingredient-card i {
+            font-size: 2rem;
+            color: var(--primary-glow);
+            margin-bottom: 1.5rem;
+        }
+
+        .ingredient-card h3 { margin-bottom: 0.8rem; font-size: 1.3rem; }
+        .ingredient-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+        /* --- CUSTOMER REVIEWS --- */
+        .reviews-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .review-node {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .stars { color: #ffd700; margin-bottom: 1rem; font-size: 0.9rem; }
+        .review-node p { font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .user-tag { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+        .user-tag::before { content: ''; width: 8px; height: 8px; background: var(--secondary-glow); border-radius: 50%; }
+
+        /* --- BEAUTY TECH BLOG --- */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .blog-post {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .blog-thumb {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s;
+        }
+
+        .blog-post:hover .blog-thumb { transform: scale(1.05); }
+        .blog-body { padding: 2rem; }
+        .blog-body .date { font-size: 0.8rem; color: var(--primary-glow); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;}
+        .blog-body h3 { font-size: 1.4rem; margin-bottom: 1rem; line-height: 1.3; }
+
+        /* --- FOOTER AREA --- */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            header, .hero, section, footer { padding: 2rem; }
+            .hero { flex-direction: column; text-align: center; justify-content: center; padding-top: 8rem; }
+            .hero-display { display: none; }
+            .showcase-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="glitterCanvas"></canvas>
+    <div class="ambient-glow"></div>
+
+    <header>
+        <div class="logo">GLOWVERSE</div>
+        <nav>
+            <a href="#hero">Home</a>
+            <a href="#showcase">Products</a>
+            <a href="#ingredients">Formulation</a>
+            <a href="#analysis">Skin Tech</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#blog">Editorial</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="hero">
+        <div class="hero-text">
+            <h1>Where Beauty Meets <span>Innovation</span></h1>
+            <p>Next-generation skincare molecularly synthesized to synchronize your cellular matrix. Watch the tech adapt directly to your environment as you scan down.</p>
+            <a href="#analysis" class="btn">Launch Skin Scan</a>
+        </div>
+        <div class="hero-display">
+            <div class="floating-bottle-rig" id="heroBottle">
+                <div class="liquid-fill" id="serumLiquid"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="showcase">
+        <div class="section-header">
+            <h2>The Product Showcase</h2>
+            <p>Hover and grasp to explore the mechanical precision of our packaging engineering alignment.</p>
+        </div>
+        <div class="showcase-container">
+            <div class="interactive-render-box">
+                <div class="bottle-mesh">
+                    <div class="cap"></div>
+                </div>
+            </div>
+            <div class="showcase-details">
+                <h3>Luminance Matrix Serum V2</h3>
+                <p>Designed with micro-shutter insulation lids that expand and contract based on barometric pressure metrics. Imbued with pure deep-layer bio-actives to deliver instant epidermal resurfacing illumination within 12 seconds.</p>
+                <a href="#ingredients" class="btn">View Blueprint</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="ingredients">
+        <div class="section-header">
+            <h2>Active Bio-Engineered Matrix</h2>
+            <p>Pure raw ingredients accelerated inside structural hyper-collateral labs.</p>
+        </div>
+        <div class="ingredients-grid">
+            <div class="ingredient-card">
+                <i class="fa-solid fa-atom"></i>
+                <h3>Synthesized Hyaluronic Acid</h3>
+                <p>Cross-linked moisture molecules engineered to retain 4,000 times their absolute molecular mass weight in deep surface water reservoirs.</p>
+            </div>
+            <div class="ingredient-card">
+                <i class="fa-solid fa-dna"></i>
+                <h3>Neuropeptide Complex</h3>
+                <p>Cellular messengers designed to mimic structural layout sequences that command immediate collagen synthesis replication routines.</p>
+            </div>
+            <div class="ingredient-card">
+                <i class="fa-solid fa-flask-vial"></i>
+                <h3>Nano-Isolated C-Ester</h3>
+                <p>A stabilized, oxidation-resistant vitamin mutation that travels uninterrupted down into melanin baselines.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="analysis">
+        <div class="section-header" style="text-align: center;">
+            <h2>Skin Transformation Analysis</h2>
+            <p>Drag the center precision node to witness the 14-day dermal correction sequence.</p>
+        </div>
+        <div class="slider-centerpiece">
+            <div class="skin-img before-layer"></div>
+            <div class="skin-img after-layer" id="sliderAfterLayer"></div>
+            <input type="range" min="0" max="100" value="50" class="slider-drag-input" id="skinSliderControl">
+        </div>
+    </section>
+
+    <section id="reviews">
+        <div class="section-header">
+            <h2>Verified Matrix Results</h2>
+            <p>Real computational feedback data from our international human test nodes.</p>
+        </div>
+        <div class="reviews-layout">
+            <div class="review-node">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p>"The micro-rotation locking cap ensures the formula never oxidizes. My skin texture roughness metric dropped by 42% in days."</p>
+                <div class="user-tag">Dr. Elena K. (Dermatologist)</div>
+            </div>
+            <div class="review-node">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p>"Seeing the serum respond directly to my local humidity via tracking metrics changed my entire cosmetic layout philosophy."</p>
+                <div class="user-tag">Marcus T. (Bio-Chemist)</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="blog">
+        <div class="section-header">
+            <h2>The GlowVerse Editorial</h2>
+            <p>Investigating the intersection lines of synthetic dermal layers and skincare.</p>
+        </div>
+        <div class="blog-grid">
+            <div class="blog-post">
+                <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=400')"></div>
+                <div class="blog-body">
+                    <div class="date">June 2026 • Tech Trends</div>
+                    <h3>The Rise of Algorithmic Skincare Calibration Systems</h3>
+                </div>
+            </div>
+            <div class="blog-post">
+                <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&q=80&w=400')"></div>
+                <div class="blog-body">
+                    <div class="date">May 2026 • Molecular Science</div>
+                    <h3>Why Non-Oxidizing Closed Cap Mechanisms Matter</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div>&copy; 2026 GlowVerse Labs Inc. All formulation patents reserved.</div>
+        <div>Beauty Metrics System V4.0.2</div>
+    </footer>
+
+    <script>
+        // --- 1. DYNAMIC CURSOR GLITTER ANIMATION PARTICLES ---
+        const canvas = document.getElementById('glitterCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class GlitterParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1.5 - 0.75;
+                this.speedY = Math.random() * -1 - 0.5;
+                this.color = Math.random() > 0.5 ? '#ff7ebb' : '#7ee8ff';
+                this.alpha = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= 0.02;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            for (let i = 0; i < 2; i++) {
+                particles.push(new GlitterParticle(e.clientX, e.clientY));
+            }
+        });
+
+        function handleParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(handleParticles);
+        }
+        handleParticles();
+
+        // --- 2. SCROLL ENGINE: SERUM LIQUID FILL CONTEXT ---
+        const serumLiquid = document.getElementById('serumLiquid');
+        window.addEventListener('scroll', () => {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const currentScrollPercent = (window.scrollY / maxScroll) * 100;
+            // Map scroll baseline smoothly from 20% volume up to 95% full tank
+            const fluidHeight = 20 + (currentScrollPercent * 0.75);
+            serumLiquid.style.height = `${fluidHeight}%`;
+        });
+
+        // --- 3. BEFORE/AFTER IMAGE CORRECTION CONTROL ---
+        const skinSliderControl = document.getElementById('skinSliderControl');
+        const sliderAfterLayer = document.getElementById('sliderAfterLayer');
+
+        skinSliderControl.addEventListener('input', (e) => {
+            const rangeValue = e.target.value;
+            sliderAfterLayer.style.width = `${rangeValue}%`;
+        });
+    </script>
+</body>
+</html>
